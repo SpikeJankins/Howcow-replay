@@ -19,6 +19,41 @@ html,body{background:var(--bg);color:var(--fg)}
 body{font-family:var(--f-ui);font-size:14px;line-height:1.35}
 *{box-sizing:border-box}
 .wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 28px;max-width:1500px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.trk{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.tbadge{font:700 13px var(--f-data);letter-spacing:.08em;padding:4px 9px;border-radius:4px;border:1px solid var(--line2);color:var(--muted)}
+.tbadge[data-t="SOLID"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.tbadge[data-t="WEAK"]{color:var(--fg);border-style:dashed}
+.tbadge[data-t="UNCONFIRMED"]{color:var(--info);border-color:var(--info)}
+.tbadge[data-t="LOST"]{color:var(--danger);border-color:var(--danger)}
+.sugg{font-size:13px;color:var(--muted)}
+.sugg b{color:var(--fg);font-size:14px}
+.act.sug{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.act{position:relative}
+.act.sug::after{content:"SUGGESTED";position:absolute;top:-8px;right:8px;padding:0 5px;background:var(--panel);font:600 9px var(--f-data);letter-spacing:.1em;color:var(--accent)}
+.act.best{outline:2px dashed var(--info);outline-offset:2px}
+body.noins .act.best{outline:none}
+.bestline{padding:0 12px 10px;font-size:12px;color:var(--info)}
+td.ok{color:var(--accent)} td.ov{color:var(--info)}
+.sit{border:1px solid var(--line2);border-radius:6px;padding:10px 12px;background:var(--panel2)}
+.sit-k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sit-state{font:700 24px var(--f-ui);letter-spacing:.04em;margin:2px 0}
+.sit-why{font-size:13px;color:var(--muted)}
+.sit[data-t="SOLID"]{border-color:var(--accent);background:var(--accent-soft)} .sit[data-t="SOLID"] .sit-state{color:var(--accent)}
+.sit[data-t="UNCONFIRMED"] .sit-state{color:var(--info)} .sit[data-t="UNCONFIRMED"]{border-color:var(--info)}
+.sit[data-t="LOST"] .sit-state,.sit[data-t="HIT"] .sit-state{color:var(--danger)} .sit[data-t="LOST"],.sit[data-t="HIT"]{border-color:var(--danger)}
+.sugbox{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:2px 2px}
+.sugbox .c{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sug-act{font:700 16px var(--f-ui);letter-spacing:.04em}
+.sugbox[data-a="go"] .sug-act{color:var(--accent)} .sugbox[data-a="man"] .sug-act{color:#8fb8ff}
+.hint{margin:0;padding:10px 12px 0;font-size:12.5px;color:var(--muted)}
+.howto{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0;padding:0 0 0 18px;color:var(--muted);font-size:13px}
+.howto b{color:var(--fg);font-weight:600}
+.maplegend{position:absolute;left:10px;top:8px;display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11.5px;color:var(--muted);background:rgba(12,17,24,.78);padding:5px 8px;border-radius:4px;max-width:calc(100% - 60px)}
+.maplegend span{display:inline-flex;align-items:center;gap:5px}
+.lg{display:inline-block;width:10px;height:10px;border-radius:50%;font-style:normal}
+.lg.dot{background:var(--accent)} .lg.ring{border:2px solid var(--accent)} .lg.circ{width:14px;height:14px;border:1px solid var(--accent);background:var(--accent-soft)}
+.lg.fc{width:4px;height:4px;background:var(--accent);box-shadow:6px 0 0 var(--accent),12px 0 0 var(--accent);margin-right:12px}
+.lg.tru{width:auto;height:auto;border-radius:0;color:var(--truth);font-weight:700}
 .bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
 .sel select{font:600 14px var(--f-ui);color:var(--fg);background:var(--panel);border:1px solid var(--line2);border-radius:4px;padding:6px 28px 6px 10px}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -133,9 +168,11 @@ td{padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
     <button class="tog" id="tgTruth" aria-pressed="true" title="True drone path, phases and seconds to hit. For the instructor, not for the operator.">Instructor view</button>
   </div>
 
+  <ol class="howto"><li><b>Play</b> the scenario.</li><li>Watch the <b>Track</b> box: SOLID means you can act.</li><li><b>Decide</b> with 1 to 4 when you would act.</li><li><b>Instructor view</b> adds the true path and the best action.</li></ol>
   <div class="grid">
     <section class="panel">
-      <div class="mapbox"><canvas id="map" aria-label="Map of the stations and the drone track"></canvas></div>
+      <div class="mapbox"><canvas id="map" aria-label="Map of the stations and the drone track"></canvas>
+        <div class="maplegend"><span><i class="lg dot"></i>drone, measured</span><span><i class="lg ring"></i>drone, forecast</span><span><i class="lg circ"></i>uncertainty</span><span><i class="lg fc"></i>where in +1, +2, +3 s</span><span class="ins"><i class="lg tru">×</i>true drone</span></div></div>
       <div class="transport">
         <button class="tbtn" id="bStart" title="Back to start">|◀</button>
         <button class="tbtn" id="bBack" title="One frame back (←)">◀</button>
@@ -150,9 +187,14 @@ td{padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
     <aside class="side">
       <section class="panel">
         <div class="status">
-          <div class="state" id="state" data-s="none"><span class="dot"></span><div><div class="lbl" id="stLbl">NO CONTACT</div><div class="sub" id="stSub">waiting for sound</div></div></div>
+          <div class="sit" id="sit" data-t="NONE">
+            <div class="sit-k">Track</div>
+            <div class="sit-state" id="sitState">NO TARGET</div>
+            <div class="sit-why" id="sitWhy">Nothing heard yet.</div>
+          </div>
+          <div class="sugbox" id="sugbox"><div class="c">System suggests</div><div class="sug-act" id="sugAct">WAIT FOR NEXT FIX</div></div>
           <div class="clock">
-            <div class="big"><div class="c">Since last fix</div><div class="n" id="nTsf">–</div></div>
+            <div class="big"><div class="c">Forecast +1 s within</div><div class="n" id="nFc">–</div></div>
             <div class="big ins" id="bigLeft"><div class="c">To hit · instructor</div><div class="n" id="nLeft">–</div></div>
           </div>
           <dl class="kv" style="margin:0">
@@ -169,15 +211,17 @@ td{padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
         </div>
       </section>
       <section class="panel">
-        <div class="ph">Decision <span class="logtools"><button class="tog" id="bCopy">Copy log</button><button class="tog" id="bClear">Clear</button></span></div>
+        <div class="ph">Your decision <span class="logtools"><button class="tog" id="bCopy">Copy log</button><button class="tog" id="bClear">Clear</button></span></div>
+        <p class="hint">In the headset the operator acts. Here, click or press 1 to 4 at the moment you would act. Each choice is logged with what was on screen.</p>
         <div class="acts">
           <button class="act" data-a="Go to forecast point"><kbd>1</kbd>Go to forecast</button>
           <button class="act" data-a="Wait for measured fix"><kbd>2</kbd>Wait for fix</button>
           <button class="act" data-a="Take manual control"><kbd>3</kbd>Manual control</button>
           <button class="act abort" data-a="Abort"><kbd>4</kbd>Abort</button>
         </div>
-        <div class="tablewrap"><table><thead><tr><th>t, s</th><th>Action</th><th>Shown</th><th>Circle</th><th>Since fix</th><th>To hit</th><th>+1 s vs fact</th></tr></thead><tbody id="log"></tbody></table>
-        <div class="empty" id="logEmpty">Press 1 to 4 when you decide. Each choice is logged with what was on screen.</div></div>
+        <div class="bestline ins" id="bestLine"></div>
+        <div class="tablewrap"><table><thead><tr><th>t, s</th><th>Action</th><th>Track</th><th>Suggested</th><th>Followed</th><th>Circle</th><th>To hit</th><th>+1 s vs fact</th></tr></thead><tbody id="log"></tbody></table>
+        <div class="empty" id="logEmpty">No decisions yet.</div></div>
       </section>
     </aside>
   </div>
@@ -222,16 +266,17 @@ function load(k){
   if (S.P){xs.push(S.P[0]); ys.push(S.P[1]);}
   S.rows.forEach(r=>{ if(r.tx!=null){xs.push(r.tx); ys.push(r.ty);} if(r.rb===1){xs.push(r.x); ys.push(r.y);} });
   S.bx=[Math.min(...xs), Math.max(...xs)]; S.by=[Math.min(...ys), Math.max(...ys)];
-  S.events = buildEvents(); S.firstFix = (S.rows.find(r=>r.rb)||{}).t;
+  computeTree(); S.events = buildEvents(); S.firstFix = (S.rows.find(r=>r.rb)||{}).t;
   S.hasAlt = S.rows.some(r=>r.al!=null);
   S.hasLeft = S.rows.some(r=>r.ttp!=null);
+  computeTree();
   try{ localStorage.setItem("swr-set", String(k)); }catch(e){}
   renderFeed(); resize(); draw();
 }
 
 // ---------- events ----------
 function buildEvents(){
-  const E=[], R=S.rows; let hadFix=false, inGap=false, gapStart=0, vvSeen=false, firstA=false, firstB=false, prevPh=null, lost=false;
+  const E=[], R=S.rows; let solidSeen=false, uncSeen=false, hadFix=false, inGap=false, gapStart=0, vvSeen=false, firstA=false, firstB=false, prevPh=null, lost=false;
   R.forEach((r,i)=>{
     if (r.ph && r.ph!==prevPh){ E.push({t:r.t, k:"ins", e:"Drone: "+({approach:"comes in",search:"searches for a target",hover:"hangs still",attack:"starts the dive"}[r.ph]||r.ph)}); prevPh=r.ph; }
     if (!firstA && r.dA){ firstA=true; E.push({t:r.t,k:"",e:"Station A hears the drone"}); }
@@ -241,6 +286,8 @@ function buildEvents(){
     if (r.rb===2 && !inGap){ inGap=true; gapStart=r.t; }
     if (r.rb!==2 && inGap){ inGap=false; const g=r.t-gapStart; if (g>=0.8 && r.rb===1) E.push({t:r.t,k:"",e:"Measured again after "+g.toFixed(1)+" s of forecast"}); }
     if (!r.rb && hadFix && !lost){ lost=true; E.push({t:r.t,k:"bad",e:"Track lost: gap too long to forecast"}); }
+    if (r.trk==="SOLID" && !solidSeen){ solidSeen=true; E.push({t:r.t,k:"cap",e:"Track SOLID: the system suggests Go to forecast point"}); }
+    if (r.trk==="UNCONFIRMED" && !uncSeen){ uncSeen=true; E.push({t:r.t,k:"bad",e:"UNCONFIRMED: not SOLID 6 s after the first dot"}); }
     if (r.vv && !vvSeen){ vvSeen=true; E.push({t:r.t,k:"cap",e:"Speed confirmed: velocity vector shown"}); }
   });
   if (S.P){ const r=R[R.length-1]; E.push({t:r.t,k:"bad",e:"Drone reaches P"}); }
@@ -329,19 +376,21 @@ function truthAt(time){
 }
 
 // ---------- timeline ----------
+const TL_LP=62;
 function drawTL(){
-  const [g,W,H]=fit($("tl")); const D=dur(); const X=v=>v/D*W; g.fillStyle=COL.panel; g.fillRect(0,0,W,H);
+  const [g,W,H]=fit($("tl")); const D=dur(); const LP=TL_LP; const X=v=>LP+v/D*(W-LP); g.fillStyle=COL.panel; g.fillRect(0,0,W,H);
   const dt=1/S.rate, hasPh=opt.truth && S.rows.some(r=>r.ph);
-  const lanes = hasPh ? [["ph",2,12],["rb",16,14],["A",33,7],["B",42,7]] : [["rb",4,18],["A",26,8],["B",37,8]];
+  const lanes = hasPh ? [["ph",2,12],["rb",16,14],["A",33,7],["B",42,7]] : [["rb",4,16],["A",24,9],["B",36,9]];
   const phc={approach:COL.line2,search:"#3d5677",hover:"#5671a3",attack:COL.danger};
-  S.rows.forEach(r=>{ const x=X(r.t), w=Math.max(1,X(dt)+0.5);
+  S.rows.forEach(r=>{ const x=X(r.t), w=Math.max(1,(W-LP)*dt/D+0.5);
     for(const [k,y,h] of lanes){
       if(k==="ph"){ g.fillStyle=phc[r.ph]||COL.line; g.globalAlpha=0.9; }
-      else if(k==="rb"){ g.fillStyle=r.rb?COL.accent:COL.line2; g.globalAlpha=r.rb===1?1:(r.rb===2?0.38:0.6); }
+      else if(k==="rb"){ g.fillStyle=r.trk==="SOLID"?COL.accent:(r.trk==="LOST"?COL.danger:(r.trk==="UNCONFIRMED"?COL.info:COL.line2)); g.globalAlpha=r.trk==="SOLID"?1:(r.rb?0.9:0.5); }
       else { const on=r["d"+k]; g.fillStyle=k==="A"?COL.staA:COL.staB; g.globalAlpha=on?0.95:0.08; }
       g.fillRect(x,y,w,h);
     } });
   g.globalAlpha=1;
+  g.fillStyle=COL.muted; g.font="600 10px "+css("--f-ui"); for(const [k,y,h] of lanes){ g.fillText({ph:"DRONE",rb:"TRACK",A:"A HEARS",B:"B HEARS"}[k],2,y+h/2+3.5); }
   // seconds ticks
   g.fillStyle=COL.muted; g.font="10px "+css("--f-data");
   for(let s=0;s<=D;s+=(D>30?10:(D>8?2:1))){ g.fillRect(X(s),H-16,1,5); g.fillText(s+" s",X(s)+2,H-2); }
@@ -355,19 +404,49 @@ function drawTL(){
 
 // ---------- side panel ----------
 function setTxt(id,v){ const e=$(id); if(e.textContent!==v) e.textContent=v; }
+// ---------- decision tree: track state, suggestion, best action ----------
+const GO="Go to forecast point", WAIT="Wait for measured fix", MAN="Take manual control", ABORT="Abort";
+function computeTree(){
+  // SOLID: a measured fix with the +1 s forecast circle 20 m or less. It stays SOLID while the last fix is
+  // no older than 1 s and the forecast circle stays 25 m or less. Not SOLID 6 s after the first dot: UNCONFIRMED.
+  let had=false, solidSeen=false, first=null, lastMeas=null, cur=false;
+  S.rows.forEach(r=>{
+    let st;
+    if(!r.rb){ st = had ? "LOST" : "NONE"; cur=false; r.sf=null; r.fc=null; }
+    else {
+      if(first==null) first=r.t;
+      if(r.rb===1) lastMeas=r.t;
+      const sf = lastMeas==null ? 9 : r.t-lastMeas; r.sf=sf;
+      const fc = r.p1s!=null ? r.p1s : r.s; r.fc=fc;
+      if (sf<1e-6 && fc<=20) cur=true;
+      else if (cur && (sf>1.0+1e-6 || fc>25)) cur=false;
+      st = cur ? "SOLID" : ((!solidSeen && r.t-first>6.0) ? "UNCONFIRMED" : "WEAK");
+    }
+    had = had || !!r.rb; solidSeen = solidSeen || st==="SOLID";
+    r.trk=st;
+    r.sug = st==="SOLID" ? ((r.sp||0)>40 ? MAN : GO) : (st==="LOST" ? MAN : WAIT);
+    if (r.ph) r.best = r.ph==="attack" ? MAN : ((r.ph==="search"||r.ph==="hover") && solidSeen ? GO : WAIT);
+  });
+}
+const TRK_LBL={NONE:"NO TARGET",WEAK:"WEAK",SOLID:"SOLID",UNCONFIRMED:"UNCONFIRMED",LOST:"LOST"};
+const SUG_LBL={[GO]:"GO TO FORECAST POINT",[WAIT]:"WAIT FOR NEXT FIX",[MAN]:"TAKE MANUAL CONTROL"};
+function why(r){
+  if(r.trk==="NONE") return (r.dA||r.dB) ? "One station hears something. A position needs both." : "Nothing heard yet.";
+  if(r.trk==="LOST") return "No position for too long. If you see the drone, fly it yourself.";
+  const age = r.sf<0.05 ? "measured now" : "last measured "+r.sf.toFixed(1)+" s ago";
+  if(r.trk==="SOLID") return "Position "+age+". Where it will be in 1 s: within "+Math.round(r.fc)+" m."+((r.sp||0)>40?" Moving fast.":"");
+  if(r.trk==="UNCONFIRMED") return "Not solid 6 s after the first dot. Watch it, do not engage.";
+  return "Position "+age+". Where it will be in 1 s: within "+Math.round(r.fc)+" m. Not solid yet.";
+}
 function updateSide(){
-  const i=rowAt(t), r=S.rows[i]; const st=$("state");
-  let s="none", L="NO CONTACT", sub="waiting for sound";
+  const i=rowAt(t), r=S.rows[i];
   const end = S.P && t>=S.rows[S.rows.length-1].t;
-  if (end){ s="hit"; L="DRONE AT P"; sub="end of scenario"; }
-  else if (r.rb===1){ s="meas"; L="LOCKED · MEASURED"; sub="both stations hold the drone"; }
-  else if (r.rb===2){ s="fore"; L="TRACKING · FORECAST"; sub="the drone is not heard well, the track continues by forecast"; }
-  else if (S.firstFix!=null && r.t>S.firstFix){ s="lost"; L="TRACK LOST"; sub="gap too long to forecast"; }
-  else if (r.dA||r.dB){ s="one"; L="HEARD · ONE STATION"; sub="position needs both stations"; }
-  st.dataset.s=s; setTxt("stLbl",L); setTxt("stSub",sub);
+  const sit=$("sit"); sit.dataset.t = end ? "HIT" : r.trk;
+  setTxt("sitState", end ? "DRONE AT P" : TRK_LBL[r.trk]); setTxt("sitWhy", end ? "End of the scenario." : why(r));
+  const sb=$("sugbox"); sb.dataset.a = r.sug===GO?"go":(r.sug===MAN?"man":"wait"); setTxt("sugAct", SUG_LBL[r.sug]);
+  setTxt("nFc", r.fc!=null ? "± "+Math.round(r.fc)+" m" : "–");
   const left = (r.ttp!=null) ? Math.max(0, r.ttp-(t-r.t)) : null;
   setTxt("nLeft", left==null?"–":left.toFixed(1)+" s"); $("bigLeft").classList.toggle("warn", left!=null && left<5);
-  setTxt("nTsf", r.rb ? ((r.tsf!=null?r.tsf:0)+(t-r.t)).toFixed(1)+" s" : "–");
   if (r.rb){
     setTxt("kPos", r.lat.toFixed(6)+"°  "+r.lng.toFixed(6)+"°");
     setTxt("kSig", "± "+r.s.toFixed(0)+" m");
@@ -378,6 +457,8 @@ function updateSide(){
   } else { for (const id of ["kPos","kSig","kAlt","kSpd","kVu"]) setTxt(id,"–"); setTxt("kSpdL","Speed"); }
   for (const k of ["A","B"]){ const on=!!r["d"+k]; $("h"+k).classList.toggle("on",on); setTxt("h"+k,on?"HEARS":"QUIET"); setTxt("az"+k, r["a"+k]!=null && on ? r["a"+k].toFixed(0)+"°" : "–"); }
   setTxt("tClock", t.toFixed(1)+" / "+dur().toFixed(1)+" s");
+  document.querySelectorAll(".act").forEach(b=>{ b.classList.toggle("sug",b.dataset.a===r.sug); b.classList.toggle("best",!!r.best && b.dataset.a===r.best); });
+  setTxt("bestLine", r.best ? "Instructor: a good operator does “"+r.best+"” now."+(r.best!==r.sug?" The system cannot see this: the drone is diving.":"") : "");
   [...$("feed").children].forEach(li=>{ const past=+li.dataset.t<=t+1e-6; li.classList.toggle("past",past); li.classList.toggle("future",!past); });
 }
 
@@ -393,7 +474,7 @@ function toggle(){ if(t>=dur()-0.01) t=0; playing=!playing; $("bPlay").textConte
 function step(d){ playing=false; $("bPlay").textContent="Play"; const i=rowAt(t)+d; t=Math.min(S.rows.length-1,Math.max(0,i))/S.rate; draw(); }
 $("bPlay").onclick=toggle; $("bBack").onclick=()=>step(-1); $("bFwd").onclick=()=>step(1); $("bStart").onclick=()=>{t=0; draw();};
 const tl=$("tl"); let drag=false;
-function seek(e){ const r=tl.getBoundingClientRect(); t=Math.min(dur()-1e-6,Math.max(0,(e.clientX-r.left)/r.width*dur())); draw(); }
+function seek(e){ const r=tl.getBoundingClientRect(); t=Math.min(dur()-1e-6,Math.max(0,(e.clientX-r.left-TL_LP)/(r.width-TL_LP)*dur())); draw(); }
 tl.addEventListener("pointerdown",e=>{drag=true; tl.setPointerCapture(e.pointerId); seek(e);});
 tl.addEventListener("pointermove",e=>{ if(drag) seek(e); });
 tl.addEventListener("pointerup",()=>drag=false);
@@ -403,7 +484,7 @@ $("tgTruth").onclick=e=>{ opt.truth=!opt.truth; e.currentTarget.setAttribute("ar
 function decide(a){
   const i=rowAt(t), r=S.rows[i];
   const left=(r.ttp!=null)?Math.max(0,r.ttp-(t-r.t)):null;
-  const L={set:S.key,t:+t.toFixed(2),action:a,row_basis:["no_output","measured_fix","forecast_in_gap"][r.rb],
+  const L={set:S.key,track_id:S.key+"-1",true_target_class:"FPV",t:+t.toFixed(2),action:a,track_on_screen:r.trk,system_suggests:r.sug,followed:(a===r.sug?"followed":"overruled"),best_action:r.best||"",row_basis:["no_output","measured_fix","forecast_in_gap"][r.rb],
     lat:r.lat??"",lng:r.lng??"",alt_m:r.al??"",circle_m:r.s??"",since_fix_s:r.tsf??(r.rb===1?0:""),seconds_left:left==null?"":+left.toFixed(1),
     target_type:r.tt||r.ac||"",forecast1_vs_fact_m:r.e1??"",forecast3_vs_fact_m:r.e3??""};
   logRows.push(L); renderLog(); toast("Logged: "+a+" at "+t.toFixed(1)+" s"); drawTL();
@@ -413,7 +494,7 @@ function renderLog(){
   logRows.slice().reverse().forEach(l=>{ const tr=document.createElement("tr");
     const shown = l.row_basis==="measured_fix"?"measured":(l.row_basis==="forecast_in_gap"?"forecast":"no position");
     const vs = l.forecast1_vs_fact_m!=="" ? "+1 s: "+l.forecast1_vs_fact_m+" m" : "–";
-    [l.set+" "+l.t.toFixed(1),l.action,shown,l.circle_m!==""?"± "+l.circle_m+" m":"–",l.since_fix_s!==""?l.since_fix_s+" s":"–",l.seconds_left!==""?l.seconds_left+" s":"–",vs].forEach(v=>{ const td=document.createElement("td"); td.textContent=v; tr.appendChild(td); });
+    [l.set+" "+l.t.toFixed(1),l.action,l.track_on_screen,l.system_suggests,l.followed,l.circle_m!==""?"± "+l.circle_m+" m":"–",l.seconds_left!==""?l.seconds_left+" s":"–",vs].forEach((v,k)=>{ const td=document.createElement("td"); td.textContent=v; if(k===4) td.className=(v==="followed"?"ok":"ov"); tr.appendChild(td); });
     tb.appendChild(tr); });
 }
 document.querySelectorAll(".act").forEach(b=>b.onclick=()=>decide(b.dataset.a));
